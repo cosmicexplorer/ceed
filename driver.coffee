@@ -4,8 +4,8 @@ ParseC = require('./c.tab').parse
 
 doParseStream = (stream, cb) ->
   buf = ''
-  s.on 'data', (data) -> buf += data.toString()
-  s.on 'finish', ->
+  stream.on 'data', (data) -> buf += data.toString()
+  stream.on 'end', ->
     try
       res = ParseC buf
       cb null, res

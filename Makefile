@@ -1,4 +1,4 @@
-.PHONY: all clean distclean
+.PHONY: all clean distclean test
 
 NODE_DIR := node_modules
 NPM_BIN := $(NODE_DIR)/.bin
@@ -16,6 +16,8 @@ LEXERS := $(wildcard *.l)
 GRAMMARS := $(wildcard *.y)
 PARSERS := $(GRAMMARS:.y=.tab.js)
 
+TEST_SCRIPT := test.sh
+
 all: $(SRC_OUT) $(PARSERS)
 
 clean:
@@ -23,6 +25,9 @@ clean:
 
 distclean: clean
 	rm -rf $(NODE_DIR)
+
+test: all $(TEST_SCRIPT)
+	sh $(TEST_SCRIPT)
 
 %.js: %.coffee $(COFFEE_CC)
 	$(COFFEE_CC) $(COFFEE_FLAGS) $<

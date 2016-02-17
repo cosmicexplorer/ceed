@@ -1,14 +1,12 @@
-/* adapted from https://www.lysator.liu.se/c/ANSI-C-grammar-y.html */
+/* adapted from https://www.lysator.liu.se/c/ANSI-C-grammar-l.html */
 
 %options flex
+%x string singstring
 
 D			[0-9]
 L			[a-zA-Z_]
 H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
-FS			f|F|l|L
-IS_SING                 u|U|l|L
-IS			{IS_SING}*
 
 %%
 
@@ -47,16 +45,21 @@ IS			{IS_SING}*
 
 {L}({L}|{D})*		return 'IDENTIFIER'
 
-0[xX]{H}+{IS}?		return 'CONSTANT'
-0{D}+{IS}?		return 'CONSTANT'
-{D}+{IS}?		return 'CONSTANT'
-L?(\\.|[^\\"'"])+ 	return 'CONSTANT'
+0[xX]{H}+((u|U|l|L)*)?	return 'CONSTANT'
+0{D}+((u|U|l|L)*)?	return 'CONSTANT'
+{D}+((u|U|l|L)*)?	return 'CONSTANT'
 
-{D}+{E}{FS}?		return 'CONSTANT'
-{D}*"."{D}+({E})?{FS}?	return 'CONSTANT'
-{D}+"."{D}*({E})?{FS}?	return 'CONSTANT'
+{D}+{E}(f|F|l|L)?	return 'CONSTANT'
+{D}*"."{D}+{E}?(f|F|l|L)?	return 'CONSTANT'
+{D}+"."{D}*{E}?(f|F|l|L)?	return 'CONSTANT'
 
-L?"\""(\\.|[^\\"\""])*"\""	return 'STRING_LITERAL'
+"L"?"'"			this.begin('singstring');
+<singstring>"'"		this.popState();
+<singstring>(\\\'|[^'])+	return 'CONSTANT'; // '
+
+"L"?'"'			this.begin('string')
+<string>'"'             this.popState();
+<string>(\\\"|[^"])*    return 'STRING_LITERAL' //"
 
 "..."			return 'ELLIPSIS'
 ">>="			return 'RIGHT_ASSIGN'
