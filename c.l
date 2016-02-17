@@ -1,4 +1,5 @@
-/* https://www.lysator.liu.se/c/ANSI-C-grammar-l.html */
+/* adapted from https://www.lysator.liu.se/c/ANSI-C-grammar-y.html */
+
 %options flex
 
 D			[0-9]
@@ -7,9 +8,6 @@ H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 FS			(f|F|l|L)
 IS			(u|U|l|L)*
-
-%{
-%}
 
 %%
 
