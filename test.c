@@ -1,3 +1,3 @@
 /* test comment */
 
-int a = L'a';
+int a = 3;
