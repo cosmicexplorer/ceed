@@ -1,25 +1,16 @@
 # present simple interface over jison grammar in grammar.jison
 
-{Writable} = require 'stream'
-{parse} = require './c.tab'
-
-class ParseStream extends Writable
-  constructor: (opts={}) ->
-    if @ instanceof ParseStream
-      return new ParseStream opts
-    else Writable.call @, opts
-
-    @buf = ''
-
-  _write: (chunk, enc, cb) ->
-    @buf += chunk.toString()
-    cb()
-
-  getBuffer: -> @buf
+ParseC = require('./c.tab').parse
 
 doParseStream = (stream, cb) ->
-  s = stream.pipe new ParseStream
+  buf = ''
+  s.on 'data', (data) -> buf += data.toString()
   s.on 'finish', ->
-    try res = parse s.getBuffer()
+    try
+      res = ParseC buf
+      cb null, res
     catch err then cb err
-    cb null, res
+
+doParseStream process.stdin, (err, parsed) ->
+  if err then throw err
+  else console.log parsed
