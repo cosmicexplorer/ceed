@@ -1,0 +1,12 @@
+{
+  "name": "ceed",
+  "version": "0.0.0",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cosmicexplorer/ceed.git"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.10.0"
+  }
+}
