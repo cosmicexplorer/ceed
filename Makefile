@@ -24,7 +24,7 @@ clean:
 distclean: clean
 	rm -rf $(NODE_DIR)
 
-%.js: %.coffee %(COFFEE_CC)
+%.js: %.coffee $(COFFEE_CC)
 	$(COFFEE_CC) $(COFFEE_FLAGS) $<
 
 JISON_WRAPPER := jison-wrapper.sh

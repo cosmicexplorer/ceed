@@ -11,7 +11,7 @@ res=$("$jison" -t "$grammar" "$lex" -o "$outfile")
 code=$?
 if [ "$code" -eq 0 ] && [ -z "$res" ]; then exit 0
 else
-  rm "$outfile"
+  rm -f "$outfile"
   echo "$res" 1>&2
   exit 1
 fi
