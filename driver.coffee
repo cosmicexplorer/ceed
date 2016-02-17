@@ -11,6 +11,10 @@ doParseStream = (stream, cb) ->
       cb null, res
     catch err then cb err
 
+traverseTree = (obj) ->
+  console.log obj
+  console.log obj.children()
+
 doParseStream process.stdin, (err, parsed) ->
   if err then throw err
-  else console.log parsed
+  else traverseTree parsed
