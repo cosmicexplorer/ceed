@@ -28,8 +28,15 @@ distclean: clean
 	$(COFFEE_CC) $(COFFEE_FLAGS) $<
 
 JISON_WRAPPER := jison-wrapper.sh
+ifeq ($(DEBUG),1)
+%.tab.js: %.y %.l $(JISON) .FORCE
+	$(JISON_WRAPPER) $@ $^ 1
+else
 %.tab.js: %.y %.l $(JISON)
 	$(JISON_WRAPPER) $@ $^
+endif
 
 $(DEPS):
 	npm install
+
+.FORCE:

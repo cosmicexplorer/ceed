@@ -1,5 +1,8 @@
 /* adapted from https://www.lysator.liu.se/c/ANSI-C-grammar-y.html */
 
+%nonassoc THEN
+%nonassoc ELSE
+
 %start translation_unit
 
 %{
@@ -190,7 +193,7 @@ type_specifier
 	| UNSIGNED
 	| struct_or_union_specifier
 	| enum_specifier
-	| IDENTIFIER
+	| TYPE_NAME
 	;
 
 struct_or_union_specifier
@@ -373,7 +376,7 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement
+	: IF '(' expression ')' statement %prec THEN
 	| IF '(' expression ')' statement ELSE statement
 	| SWITCH '(' expression ')' statement
 	;
