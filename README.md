@@ -1,16 +1,24 @@
 ceed
 ====
 
-IT'S CALLED CEED BECAUSE IT MAKES A **TREE** FROM C CODE GET IT
+IT'S CALLED CEED BECAUSE IT MAKES A **TREE** FROM C CODE *GET IT*
 
-Produces an AST from preprocessed C source code using jison, a C grammar, and some sunlight.
-
-This is a library producing nodes suitable for [selectree](https://github.com/cosmicexplorer/selectree). Anything that modifies syntax goes here. This shouldn't require a lot of changes after it's written.
+Produces an AST from preprocessed C source code using jison, a C grammar, and some sunlight. Use [selectree][] to manipulate tree for any mid-end optimizations (none implemented yet). Finally, have LLVM/C backends to produce working binaries with the help of [llc][], or view the result of optimizations as formatted C code (shelling out to [clang-format][]). Packaged as a command-line program and a library.
 
 # TODO
 
-- [x] actually generate nodes
-- [ ] create appropriate class hierarchy to represent nodes (abstract from parse tree)
+- [x] actually generate nodes *2016-02-19*
+- [ ] abstract AST from parse tree
+- [ ] generate basic IR from nodes for some small example program
+- [ ] generate valid IR for "hello world" program
+- [ ] generate valid IR for arbitrary programs
+- [ ] demonstrate utility by implementing mid-end optimizations through use of [selectree][]
+- [ ] generate C from nodes
+    - view result of optimizations in real time
+    - can live modify optimization code, or input code to see how to satisfy optimization constraints
+
+## Usability Improvements
+
 - [ ] Use line number output from cpp as specified [here](https://gcc.gnu.org/onlinedocs/cpp/Preprocessor-Output.html). Remove the `-P` from the test command.
     - can preprocess in [the driver](driver.coffee)
         - form sorted map of input lines from `cpp` to line numbers as given
@@ -23,3 +31,7 @@ This is a library producing nodes suitable for [selectree](https://github.com/co
     - this allows for common attributes like line/col, but also node-specific attributes like storage class specifiers
     - this would involve redoing the class hierarchy instead of the flat "everything is an AST node" like we have now
         - maybe mixins too
+
+[selectree]: https://github.com/cosmicexplorer/selectree
+[llc]: http://llvm.org/docs/CommandGuide/llc.html
+[clang-format]: http://clang.llvm.org/docs/ClangFormat.html
