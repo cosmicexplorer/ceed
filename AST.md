@@ -59,10 +59,10 @@ Also inherits from `Statement`!
 ### NewTypeDeclaration
 - StructDeclaration
     - ?name: `UniqueName`
-    - ?members: list< pair<memberName: `Name`, memberType: `TypeRef`> >
+    - ?members: list< {memberName: `Name`, memberType: `TypeRef`} >
 - EnumDeclaration
     - ?name: `UniqueName`
-    - members: list< pair<`UniqueName`, `int`> >
+    - members: list< {name: `UniqueName`, ?num: `int`} >
 
 ## ValueDeclaration
 All of these have a field isDefinition, which determines whether it is a declaration or definition. This can be viewed as a `bool` or an `enum`. A static pass (before type-checking) over the AST will determine whether there is more than one definition. If isDefinition is set to "definition" (or `true`), then a "value" field is allowed. This may be performed during creation of the AST during parsing, or as a separate pass over the AST before type-checking.
@@ -110,10 +110,10 @@ All expressions have types, which are computed in an AST pass.
     - left: `RealExpression`
     - right: `RealExpression`
     - split into specializations of:
-        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`
+        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`
 - UnaryOperator
     - split into specializations of:
-        - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)
+        - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)|`+`|`-`|`!`
     - expr: `RealExpression`
 - TernaryOperator
     - test: `RealExpression`
@@ -145,6 +145,7 @@ Things that are expressions, but only in the beginning of parts of if/while/for 
 - ContinueStatement
 - GotoStatement
     - label: `LabelRef`
+- EmptyStatement
 
 ## Scope
 all have (body: list<`Statement`>)

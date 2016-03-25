@@ -23,6 +23,8 @@ struct UniqueName : public Name {
   UniqueName(const std::string &, Scope &);
 };
 
+struct FunctionDefinition;
+
 struct UniqueLabel : public Name {
   FunctionDefinition enclosingDefinition;
   UniqueLabel(const std::string &, const FunctionDefinition &);
@@ -213,12 +215,12 @@ struct BinaryOperator : public RealExpression {
   BinaryOperator(const RealExpression &, const RealExpression &);
 };
 
-struct PlusOperator : public BinaryOperator {
-  PlusOperator(const RealExpression &, const RealExpression &);
+struct PlusBinaryOperator : public BinaryOperator {
+  PlusBinaryOperator(const RealExpression &, const RealExpression &);
 };
 
-struct MinusOperator : public BinaryOperator {
-  MinusOperator(const RealExpression &, const RealExpression &);
+struct MinusBinaryOperator : public BinaryOperator {
+  MinusBinaryOperator(const RealExpression &, const RealExpression &);
 };
 
 struct AsteriskBinaryOperator : public BinaryOperator {
@@ -261,12 +263,16 @@ struct DoublePipeOperator : public BinaryOperator {
   DoublePipeOperator(const RealExpression &, const RealExpression &);
 };
 
-struct SingleAmpersandUnaryOperator : public BinaryOperator {
-  SingleAmpersandUnaryOperator(const RealExpression &, const RealExpression &);
+struct BitwiseAndOperator : public BinaryOperator {
+  BitwiseAndOperator(const RealExpression &, const RealExpression &);
 };
 
-struct CaratOperator : public BinaryOperator {
-  CaratOperator(const RealExpression &, const RealExpression &);
+struct BitwiseXorOperator : public BinaryOperator {
+  BitwiseXorOperator(const RealExpression &, const RealExpression &);
+};
+
+struct BitwiseOrOperator : public BinaryOperator {
+  BitwiseOrOperator(const RealExpression &, const RealExpression &);
 };
 
 struct UnaryOperator : public RealExpression {
@@ -296,6 +302,18 @@ struct PredecrementOperator : public UnaryOperator {
 
 struct PostdecrementOperator : public UnaryOperator {
   PostdecrementOperator(const RealExpression &);
+};
+
+struct PlusUnaryOperator : public UnaryOperator {
+  PlusUnaryOperator(const RealExpression &);
+};
+
+struct MinusUnaryOperator : public UnaryOperator {
+  MinusUnaryOperator(const RealExpression &);
+};
+
+struct NegationOperator : public UnaryOperator {
+  NegationOperator(const RealExpression &);
 };
 
 struct TernaryOperator : public RealExpression {
@@ -349,6 +367,9 @@ struct ContinueStatement : public ControlStatement {
 struct GotoStatement : public ControlStatement {
   LabelRef label;
   GotoStatement(const LabelRef &);
+};
+
+struct EmptyStatement : public ControlStatement {
 };
 
 struct Scope : public Statement {
