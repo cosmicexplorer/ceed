@@ -3,17 +3,20 @@ AST
 
 AST node reference.
 
-A `Name` is a token newly created in a declaration which must be unique. A `Type` is some type declared previously. `?` before a field means it is optional. `NameRef` resolves to a type during type checking, and to a location in memory during codegen.
+A `Name` is a token newly created in a declaration which must be unique. `?` before a field means it is optional. `NameRef` resolves to a type during type checking, and to a location in memory during codegen.
 
-# Type
+# TypeRef
 Not a declaration!
 - modifiers: list<`SomeString`>
-- name: list<`SomeString`>
+- name: `NameRef`
+
+## AnonymousTypeRef
+- name: `TypeDeclaration`
 
 # Declaration
 ## TypeDeclaration
 - typedef
-    - fromType: `Type`
+    - fromType: `TypeRef`
     - toType: `Name`
 - struct
     - ?name: `Name`
@@ -24,26 +27,25 @@ Not a declaration!
     - members: list<`Name`>
 
 ## Value
-### TopLevel
+### TopLevelValue
 All of these have a field declarationOrDefinition, which determines whether it is a declaration or definition. This can be viewed as a `bool` or an `enum`. A static pass (before type-checking) over the AST will determine whether there is more than one definition. If declarationOrDefinition is set to "definition", then a "value" field is allowed. This may be performed during creation of the AST during parsing, or as a separate pass over the AST before type-checking.
 
 - variable
-    - type: `Type`
+    - type: `TypeRef`
     - name: `Name`
     - specifiers: list<`SomeString`>
     - declarationOrDefinition: `bool` (or enum)
     - ?value: `Expression`
 - function
-    - returnType: `Type`
-    - argTypes: list<`Type`>
+    - returnType: `TypeRef`
+    - argTypes: list<`TypeRef`>
     - declarationOrDefinition: `bool` (or enum)
     - ?value: list<`Variable[InsideFunc]`>, definition: `OpenScope`
     - specifiers: list<`SomeString`>
 
-#### Required
-- enclosingScope: `Scope`
+### InsideFuncValue
+All have an enclosingScope: `Scope`.
 
-#### Members
 - gotoDecl
     - label: `Name`
 
@@ -79,7 +81,7 @@ All expressions have types, which are computed in an AST pass.
 Things that are expressions, but only in the beginning of parts of if/while/for blocks. For compound variable assignments (`int a = 3, b = 2`), let's just make them into a list of variable assignments. I'm pretty sure that's allowed.
 
 - localVariable
-    - type: `Type`
+    - type: `TypeRef`
     - name: `Name`
     - ?value: `RealExpression`
         - not necessary; memory always allocated either way (modulo optimizations)
@@ -115,3 +117,8 @@ Things that are expressions, but only in the beginning of parts of if/while/for 
     - body: list<`Statement`>
 - open scope `{}`
     - body: list<`Statement`>
+
+# Body
+Things that can go inside a function body.
+
+- lines: list<`Statement`|`TypeDeclaration`>
