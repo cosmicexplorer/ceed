@@ -20,8 +20,7 @@ Not a declaration!
     - toType: `Name`
 - struct
     - ?name: `Name`
-    - ?members: list<`Variable`>
-        - what kind of variable??? oops
+    - ?members: list< pair<`TypeRef`, `Name`> >
 - enum
     - ?name: `Name`
     - members: list<`Name`>
