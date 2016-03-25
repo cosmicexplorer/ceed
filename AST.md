@@ -1,9 +1,22 @@
 AST
 ===
 
-AST node reference.
+AST node reference. Implemented in [ASTNode.coffee](ASTNode.coffee).
 
 A `Name` is a token newly created in a declaration which must be unique. `?` before a field means it is optional. `NameRef` resolves to a type or a value of some type during type checking, and to a location in memory during codegen.
+
+# Name
+A token denoting the name of something.
+
+- name: `SomeString`
+
+## UniqueName
+A token newly created in a declaration, which must be unique within its enclosing scope (but can be shadowed in lower scopes).
+
+# NameRef
+Resolves to whatever is denoted by the name.
+
+- name: `SomeString`
 
 # TypeRef
 Not a declaration!
@@ -14,39 +27,42 @@ Not a declaration!
 - name: `TypeDeclaration`
 
 # Declaration
+
+All of these have an enclosingScope: `Scope`, which may be global.
+
 ## TypeDeclaration
-- typedef
+- Typedef
     - fromType: `TypeRef`
-    - toType: `Name`
-- struct
-    - ?name: `Name`
-    - ?members: list< pair<`TypeRef`, `Name`> >
-- enum
-    - ?name: `Name`
-    - members: list<`Name`>
+    - toType: `UniqueName`
+- StructDeclaration
+    - ?name: `UniqueName`
+    - ?members: list< pair<memberName: `Name`, memberType: `TypeRef`> >
+- EnumDeclaration
+    - ?name: `UniqueName`
+    - members: list< pair<`UniqueName`, `int`> >
 
 ## Value
 ### TopLevelValue
-All of these have a field declarationOrDefinition, which determines whether it is a declaration or definition. This can be viewed as a `bool` or an `enum`. A static pass (before type-checking) over the AST will determine whether there is more than one definition. If declarationOrDefinition is set to "definition", then a "value" field is allowed. This may be performed during creation of the AST during parsing, or as a separate pass over the AST before type-checking.
+All of these have a field isDefinition, which determines whether it is a declaration or definition. This can be viewed as a `bool` or an `enum`. A static pass (before type-checking) over the AST will determine whether there is more than one definition. If isDefinition is set to "definition" (or `true`), then a "value" field is allowed. This may be performed during creation of the AST during parsing, or as a separate pass over the AST before type-checking.
 
-- variable
+- TopLevelVariable
     - type: `TypeRef`
-    - name: `Name`
+    - name: `UniqueName`
     - specifiers: list<`SomeString`>
-    - declarationOrDefinition: `bool` (or enum)
+    - isDefinition: `bool` (or enum)
     - ?value: `Expression`
-- function
+- TopLevelFunction
     - returnType: `TypeRef`
     - argTypes: list<`TypeRef`>
-    - declarationOrDefinition: `bool` (or enum)
-    - ?value: list<`Variable[InsideFunc]`>, definition: `OpenScope`
+    - isDefinition: `bool` (or enum)
+    - ?value: list<`localVariable`>, definition: `OpenScope`
     - specifiers: list<`SomeString`>
 
-### InsideFuncValue
-All have an enclosingScope: `Scope`.
+### GotoDecl
 
-- gotoDecl
+- GotoDecl
     - label: `Name`
+    - enclosingScope: `Scope`
 
 # Statement
 
