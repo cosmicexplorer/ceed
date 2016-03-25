@@ -3,11 +3,15 @@ AST
 
 AST node reference.
 
-# Things
 A `Name` is a token newly created in a declaration which must be unique. A `Type` is some type declared previously. `?` before a field means it is optional. `NameRef` resolves to a type during type checking, and to a location in memory during codegen.
 
+# Type
+Not a declaration!
+- modifiers: list<`SomeString`>
+- name: list<`SomeString`>
+
 # Declaration
-## Type
+## TypeDeclaration
 - typedef
     - fromType: `Type`
     - toType: `Name`
@@ -35,8 +39,6 @@ All of these have a field declarationOrDefinition, which determines whether it i
     - declarationOrDefinition: `bool` (or enum)
     - ?value: list<`Variable[InsideFunc]`>, definition: `OpenScope`
     - specifiers: list<`SomeString`>
-
-### InsideFunc
 
 #### Required
 - enclosingScope: `Scope`
