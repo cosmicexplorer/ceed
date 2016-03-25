@@ -8,7 +8,10 @@ Produces an AST from preprocessed C source code using jison, a C grammar, and so
 # TODO
 
 - [x] actually generate nodes *2016-02-19*
-- [ ] abstract AST from parse tree
+- [x] abstract AST from parse tree
+- [ ] generate bookkeeping structure separate from program memory for ast nodes
+    - big ol hash table
+    - allows for serializability (gimple)
 - [ ] generate basic IR from nodes for some small example program
 - [ ] generate valid IR for "hello world" program
 - [ ] generate valid IR for arbitrary programs
