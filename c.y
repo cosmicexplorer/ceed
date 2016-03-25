@@ -6,15 +6,10 @@
 %start translation_unit
 
 %{
-/* https://github.com/zaach/jison/issues/313 */
-var Jison = require('jison');
-var ASTNode = require('./ASTNode').ASTNode;
 %}
 
 %%
 
-/* in general, don't have tokens as "children"; instead, make them attributes,
- * or make them a new type of subclass of the parse tree node */
 primary_expression
         : IDENTIFIER
         | CONSTANT

@@ -316,6 +316,10 @@ struct NegationOperator : public UnaryOperator {
   NegationOperator(const RealExpression &);
 };
 
+struct TildeOperator : public UnaryOperator {
+  TildeOperator(const RealExpression &);
+};
+
 struct TernaryOperator : public RealExpression {
   RealExpression test;
   RealExpression ifTrue;

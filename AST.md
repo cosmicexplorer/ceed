@@ -110,7 +110,7 @@ All expressions have types, which are computed in an AST pass.
     - left: `RealExpression`
     - right: `RealExpression`
     - split into specializations of:
-        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`
+        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`
 - UnaryOperator
     - split into specializations of:
         - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)|`+`|`-`|`!`
