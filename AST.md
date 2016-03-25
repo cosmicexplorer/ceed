@@ -3,7 +3,7 @@ AST
 
 AST node reference.
 
-A `Name` is a token newly created in a declaration which must be unique. `?` before a field means it is optional. `NameRef` resolves to a type during type checking, and to a location in memory during codegen.
+A `Name` is a token newly created in a declaration which must be unique. `?` before a field means it is optional. `NameRef` resolves to a type or a value of some type during type checking, and to a location in memory during codegen.
 
 # TypeRef
 Not a declaration!
