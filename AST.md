@@ -18,6 +18,11 @@ Similar to UniqueName, but for goto statements.
 
 - enclosingDefinition: `FunctionDefinition`
 
+## StructMemberName
+Must be unique within a struct.
+
+- enclosingStruct: `StructDeclaration`
+
 # NameRef
 Resolves to whatever is denoted by the name.
 
@@ -30,6 +35,8 @@ Resolves to whatever is denoted by the name.
 Same as ValueRef, but for gotos.
 
 - enclosingDefinition: `FunctionDefinition`
+
+## StructMemberNameRef
 
 # FunctionDefinition
 - arguments: list<`LocalVariable`>
@@ -59,7 +66,7 @@ Also inherits from `Statement`!
 ### NewTypeDeclaration
 - StructDeclaration
     - ?name: `UniqueName`
-    - ?members: list< {memberName: `Name`, memberType: `TypeRef`} >
+    - ?members: list< {memberName: `StructMemberName`, memberType: `TypeRef`} >
 - EnumDeclaration
     - ?name: `UniqueName`
     - members: list< {name: `UniqueName`, ?num: `int`} >
@@ -110,7 +117,12 @@ All expressions have types, which are computed in an AST pass.
     - left: `RealExpression`
     - right: `RealExpression`
     - split into specializations of:
-        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`
+        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`*=`|`/=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`|`%`|`>`|`<`|`<=`|`>=`|`&=`|`|=`|`^=`|`<<`|`>>`|`<<=`|`>>=`|`[]`
+- MemberAccessOperator
+    - expr: `RealExpression`
+    - memberName: `StructMemberNameRef`
+    - split into specializations of:
+        - `.`|`->`
 - UnaryOperator
     - split into specializations of:
         - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)|`+`|`-`|`!`

@@ -30,6 +30,13 @@ struct UniqueLabel : public Name {
   UniqueLabel(const std::string &, const FunctionDefinition &);
 };
 
+struct StructDeclaration;
+
+struct StructMemberName : public Name {
+  StructDeclaration enclosingStruct;
+  StructMemberName(const StructDeclaration &);
+};
+
 struct NameRef : public ASTNode {
   std::string name;
   NameRef(const std::string &);
@@ -43,6 +50,10 @@ struct ValueRef : public NameRef {
 struct LabelRef : public NameRef {
   FunctionDefinition enclosingDefinition;
   LabelRef(const std::string &, const FunctionDefinition &);
+};
+
+struct StructMemberNameRef : public NameRef {
+  StructMemberNameRef(const std::string &);
 };
 
 struct TypeRef : public ASTNode {
@@ -235,12 +246,20 @@ struct AssignmentOperator : public BinaryOperator {
   AssignmentOperator(const RealExpression &, const RealExpression &);
 };
 
-struct IncrementAssignOperator : public BinaryOperator {
-  IncrementAssignOperator(const RealExpression &, const RealExpression &);
+struct AddAssignOperator : public BinaryOperator {
+  AddAssignOperator(const RealExpression &, const RealExpression &);
 };
 
-struct DecrementAssignOperator : public BinaryOperator {
-  DecrementAssignOperator(const RealExpression &, const RealExpression &);
+struct SubtractAssignOperator : public BinaryOperator {
+  SubtractAssignOperator(const RealExpression &, const RealExpression &);
+};
+
+struct MultiplyAssignmentOperator : public BinaryOperator {
+  MultiplyAssignmentOperator(const RealExpression &, const RealExpression &);
+};
+
+struct DivideAssignOperator : public BinaryOperator {
+  DivideAssignOperator(const RealExpression &, const RealExpression &);
 };
 
 struct CommaOperator : public BinaryOperator {
@@ -273,6 +292,72 @@ struct BitwiseXorOperator : public BinaryOperator {
 
 struct BitwiseOrOperator : public BinaryOperator {
   BitwiseOrOperator(const RealExpression &, const RealExpression &);
+};
+
+struct ModuloOperator : public BinaryOperator {
+  ModuloOperator(const RealExpression &, const RealExpression &);
+};
+
+struct LessThanOperator : public BinaryOperator {
+  LessThanOperator(const RealExpression &, const RealExpression &);
+};
+
+struct GreaterThanOperator : public BinaryOperator {
+  GreaterThanOperator(const RealExpression &, const RealExpression &);
+};
+
+struct LessThanOrEqualToOperator : public BinaryOperator {
+  LessThanOrEqualToOperator(const RealExpression &, const RealExpression &);
+};
+
+struct GreaterThanOrEqualToOperator : public BinaryOperator {
+  GreaterThanOrEqualToOperator(const RealExpression &, const RealExpression &);
+};
+
+struct BitwiseAndAssignmentOperator : public BinaryOperator {
+  BitwiseAndAssignmentOperator(const RealExpression &, const RealExpression &);
+};
+
+struct BitwiseOrAssignmentOperator : public BinaryOperator {
+  BitwiseOrAssignmentOperator(const RealExpression &, const RealExpression &);
+};
+
+struct BitwiseXorAssignmentOperator : public BinaryOperator {
+  BitwiseXorAssignmentOperator(const RealExpression &, const RealExpression &);
+};
+
+struct LeftShiftOperator : public BinaryOperator {
+  LeftShiftOperator(const RealExpression &, const RealExpression &);
+};
+
+struct RightShiftOperator : public BinaryOperator {
+  RightShiftOperator(const RealExpression &, const RealExpression &);
+};
+
+struct LeftShiftAssignmentOperator : public BinaryOperator {
+  LeftShiftAssignmentOperator(const RealExpression &, const RealExpression &);
+};
+
+struct RightShiftAssignmentOperator : public BinaryOperator {
+  RightShiftAssignmentOperator(const RealExpression &, const RealExpression &);
+};
+
+struct SubscriptOperator : public BinaryOperator {
+  SubscriptOperator(const RealExpression &, const RealExpression &);
+};
+
+struct MemberAccessOperator : public RealExpression {
+  RealExpression expr;
+  StructMemberNameRef memberName;
+  MemberAccessOperator(const RealExpression &, const StructMemberNameRef &);
+};
+
+struct DotOperator : public MemberAccessOperator {
+  DotOperator(const RealExpression &, const StructMemberNameRef &);
+};
+
+struct ArrowOperator : public MemberAccessOperator {
+  ArrowOperator(const RealExpression &, const StructMemberNameRef &);
 };
 
 struct UnaryOperator : public RealExpression {
@@ -316,8 +401,8 @@ struct NegationOperator : public UnaryOperator {
   NegationOperator(const RealExpression &);
 };
 
-struct TildeOperator : public UnaryOperator {
-  TildeOperator(const RealExpression &);
+struct BitwiseNotOperator : public UnaryOperator {
+  BitwiseNotOperator(const RealExpression &);
 };
 
 struct TernaryOperator : public RealExpression {
