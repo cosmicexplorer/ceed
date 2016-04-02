@@ -13,36 +13,65 @@ A token denoting the name of something.
 ## UniqueName
 A token newly created in a declaration, which must be unique within its enclosing scope (but can be shadowed in lower scopes).
 
+## UniqueLabel
+Similar to UniqueName, but for goto statements.
+
+- enclosingDefinition: `FunctionDefinition`
+
+## StructMemberName
+Must be unique within a struct.
+
+- enclosingStruct: `StructDeclaration`
+
 # NameRef
 Resolves to whatever is denoted by the name.
 
 - name: `SomeString`
 
+## ValueRef
+- enclosingScope: `Scope`
+
+## LabelRef
+Same as ValueRef, but for gotos.
+
+- enclosingDefinition: `FunctionDefinition`
+
+## StructMemberNameRef
+
+# FunctionDefinition
+- arguments: list<`LocalVariable`>
+- definition: `OpenScope`
+
 # TypeRef
 Not a declaration!
 - modifiers: list<`SomeString`>
-- name: `NameRef`
+
+## NamedTypeRef
+- name: `ValueRef`
 
 ## AnonymousTypeRef
-- name: `TypeDeclaration`
+- impl: `NewTypeDeclaration`
 
 # Declaration
 
 All of these have an enclosingScope: `Scope`, which may be global.
 
 ## TypeDeclaration
+Also inherits from `Statement`!
+
 - Typedef
     - fromType: `TypeRef`
     - toType: `UniqueName`
+
+### NewTypeDeclaration
 - StructDeclaration
     - ?name: `UniqueName`
-    - ?members: list< pair<memberName: `Name`, memberType: `TypeRef`> >
+    - ?members: list< {memberName: `StructMemberName`, memberType: `TypeRef`} >
 - EnumDeclaration
     - ?name: `UniqueName`
-    - members: list< pair<`UniqueName`, `int`> >
+    - members: list< {name: `UniqueName`, ?num: `int`} >
 
-## Value
-### TopLevelValue
+## ValueDeclaration
 All of these have a field isDefinition, which determines whether it is a declaration or definition. This can be viewed as a `bool` or an `enum`. A static pass (before type-checking) over the AST will determine whether there is more than one definition. If isDefinition is set to "definition" (or `true`), then a "value" field is allowed. This may be performed during creation of the AST during parsing, or as a separate pass over the AST before type-checking.
 
 - TopLevelVariable
@@ -55,14 +84,13 @@ All of these have a field isDefinition, which determines whether it is a declara
     - returnType: `TypeRef`
     - argTypes: list<`TypeRef`>
     - isDefinition: `bool` (or enum)
-    - ?value: list<`localVariable`>, definition: `OpenScope`
+    - ?value: list<`LocalVariable`>, definition: `OpenScope`
     - specifiers: list<`SomeString`>
 
-### GotoDecl
+## GotoDeclaration
 
-- GotoDecl
-    - label: `Name`
-    - enclosingScope: `Scope`
+- GotoDeclaration
+    - label: `UniqueLabel`
 
 # Statement
 
@@ -70,34 +98,51 @@ All of these things have an enclosing scope, which may be anything subclassing `
 
 - enclosingScope: `Scope`
 
-## Simple
+## SimpleStatement
 ### Expression
 #### RealExpression
 All expressions have types, which are computed in an AST pass.
 
-- function call
-    - functionName: `NameRef`
+- FunctionCall
+    - functionName: `ValueRef`
     - arguments: list<`RealExpression`>
-- literal
+- Literal
     - options:
-        - string literal
-        - numeric literal
-        - `NameRef`
-            - function/variable reference (not function call!!)
-- binaryOperator
-    - name: `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`,`
+        - StringLiteral {content: `SomeString`}
+        - NumericLiteral {content: `NumericConstant`}
+        - ReferenceLiteral
+            - `ValueRef`
+                - function/variable reference (not function call!!)
+- BinaryOperator
     - left: `RealExpression`
     - right: `RealExpression`
-- unaryOperator
-    - name: `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)
+    - split into specializations of:
+        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`*=`|`/=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`|`%`|`>`|`<`|`<=`|`>=`|`&=`|`|=`|`^=`|`<<`|`>>`|`<<=`|`>>=`|`[]`
+- MemberAccessOperator
+    - expr: `RealExpression`
+    - memberName: `StructMemberNameRef`
+    - split into specializations of:
+        - `.`|`->`
+- UnaryOperator
+    - split into specializations of:
+        - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)|`+`|`-`|`!`
+    - expr: `RealExpression`
+- TernaryOperator
+    - test: `RealExpression`
+    - ifTrue: `RealExpression`
+    - ifFalse: `RealExpression`
+- ParenthesesOperator
+    - expr: `RealExpression`
+- ExplicitCast
+    - castingType: `TypeRef`
     - expr: `RealExpression`
 
 #### SometimesExpression
 Things that are expressions, but only in the beginning of parts of if/while/for blocks. For compound variable assignments (`int a = 3, b = 2`), let's just make them into a list of variable assignments. I'm pretty sure that's allowed.
 
-- localVariable
+- LocalVariable
     - type: `TypeRef`
-    - name: `Name`
+    - name: `UniqueName`
     - ?value: `RealExpression`
         - not necessary; memory always allocated either way (modulo optimizations)
     - specifiers: list<`SomeString`>
@@ -105,35 +150,26 @@ Things that are expressions, but only in the beginning of parts of if/while/for 
     - this is also an expression, and also a statement!
 
 
-### Control
-- return
+### ControlStatement
+- ReturnStatement
     - ?expr: `RealExpression`
-- break
-- continue
-- goto
-    - label: `NameRef`
+- BreakStatement
+- ContinueStatement
+- GotoStatement
+    - label: `LabelRef`
+- EmptyStatement
 
 ## Scope
-- for
+all have (body: list<`Statement`>)
+- ForLoop
     - setupClause: `Expression`
     - conditionClause: `Expression`
     - advanceClause: `RealExpression`
-    - body: list<`Statement`>
-- while
+- WhileLoop
     - conditionClause: `Expression`
-    - body: list<`Statement`>
-- do/while
+- DoWhileLoop
     - conditionClause: `Expression`
-    - body: list<`Statement`>
-- if
+- IfBlock
     - conditionClause: `Expression`
-    - body: list<`Statement`>
-- else
-    - body: list<`Statement`>
-- open scope `{}`
-    - body: list<`Statement`>
-
-# Body
-Things that can go inside a function body.
-
-- lines: list<`Statement`|`TypeDeclaration`>
+- ElseBlock
+- OpenScope `{}`
