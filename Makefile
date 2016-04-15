@@ -9,8 +9,9 @@ DEPS := $(COFFEE_CC) $(JISON)
 
 SRC_IN := $(wildcard *.coffee)
 SRC_OUT := $(SRC_IN:.coffee=.js)
+SRC_MAPS := $(SRC_IN:.coffee=.js.map)
 
-COFFEE_FLAGS := -bc --no-header
+COFFEE_FLAGS := -bcm --no-header
 
 LEXERS := $(wildcard *.l)
 GRAMMARS := $(wildcard *.y)
@@ -21,7 +22,7 @@ TEST_SCRIPT := test.sh
 all: $(SRC_OUT) $(PARSERS)
 
 clean:
-	rm -f $(SRC_OUT) $(PARSERS)
+	rm -f $(SRC_OUT) $(PARSERS) $(SRC_MAPS)
 
 distclean: clean
 	rm -rf $(NODE_DIR)
