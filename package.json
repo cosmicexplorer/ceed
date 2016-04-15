@@ -8,7 +8,9 @@
   },
   "devDependencies": {
     "coffee-script": "^1.10.0",
-    "jison": "^0.4.17"
+    "jison": "^0.4.17",
+    "node-inspector": "^0.12.8",
+    "nodeunit": "^0.9.1"
   },
   "dependencies": {
     "lodash": "^4.4.0",
