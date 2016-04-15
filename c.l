@@ -43,7 +43,7 @@ E			[Ee][+-]?{D}+
 "volatile"		return 'VOLATILE';
 "while"			return 'WHILE';
 
-{L}({L}|{D})*		return 'IDENTIFIER';
+{L}({L}|{D})*           return 'IDENTIFIER';
 
 0[xX]{H}+((u|U|l|L)*)?	return 'INT_CONSTANT';
 0{D}+((u|U|l|L)*)?	return 'INT_CONSTANT';

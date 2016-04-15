@@ -13,8 +13,6 @@ var n = require('./ASTNode');
 
 %%
 
-/* in general, don't have tokens as "children"; instead, make them attributes,
- * or make them a new type of subclass of the parse tree node */
 primary_expression
         : IDENTIFIER -> new n.NameRef($1)
         | INT_CONSTANT -> new n.IntegerLiteral(parseInt($1))
@@ -36,7 +34,7 @@ postfix_expression
         ;
 
 argument_expression_list
-        : assignment_expression
+        : assignment_expression -> [$1]
         | argument_expression_list ',' assignment_expression -> $1.concat($3)
         ;
 
@@ -139,12 +137,8 @@ assignment_expression
         ;
 
 expression
-        : assignment_expression -> new n.ASTNode('Expression', [$1])
-        | expression ',' assignment_expression -> new n.ASTNode('Expression', [$1, $3])
-        ;
-
-constant_expression
-        : conditional_expression -> new n.ASTNode('ConstantExpression', [$1])
+        : assignment_expression
+        | expression ',' assignment_expression -> new n.Comma($1, $3)
         ;
 
 declaration
@@ -155,11 +149,9 @@ declaration
 
 declaration_specifiers
         : storage_class_specifier
-          { $$ = new n.ASTNode('DeclarationSpecifiers', [$1]); }
         | storage_class_specifier declaration_specifiers
           { $$ = new n.ASTNode('DeclarationSpecifiers', [$1, $2]); }
         | type_specifier
-          { $$ = new n.ASTNode('DeclarationSpecifiers', [$1]); }
         | type_specifier declaration_specifiers
           { $$ = new n.ASTNode('DeclarationSpecifiers', [$1, $2]); }
         | type_qualifier
@@ -169,12 +161,12 @@ declaration_specifiers
         ;
 
 init_declarator_list
-        : init_declarator -> new n.ASTNode('InitDeclaratorList', [$1])
+        : init_declarator
         | init_declarator_list ',' init_declarator -> new n.ASTNode('InitDeclaratorList', [$1, $3])
         ;
 
 init_declarator
-        : declarator -> new n.ASTNode('InitDeclarator', [$1])
+        : declarator
         | declarator '=' initializer -> new n.ASTNode('InitDeclarator', [$1, $3])
         ;
 
@@ -229,7 +221,7 @@ struct_declaration
 
 specifier_qualifier_list
         : type_specifier specifier_qualifier_list -> new n.ASTNode('SpecifierQualifierList', [$1, $2])
-        | type_specifier -> new n.ASTNode('SpecifierQualifierList', [$1])
+        | type_specifier
         | type_qualifier specifier_qualifier_list -> new n.ASTNode('SpecifierQualifierList', [$1, $2])
         | type_qualifier -> new n.ASTNode('SpecifierQualifierList', [$1])
         ;
@@ -242,8 +234,8 @@ struct_declarator_list
 
 struct_declarator
         : declarator -> new n.ASTNode('StructDeclarator', [$1])
-        | ':' constant_expression -> new n.ASTNode('StructDeclarator', [$2])
-        | declarator ':' constant_expression -> new n.ASTNode('StructDeclarator', [$1, $3])
+        | ':' conditional_expression -> new n.ASTNode('StructDeclarator', [$2])
+        | declarator ':' conditional_expression -> new n.ASTNode('StructDeclarator', [$1, $3])
         ;
 
 enum_specifier
@@ -259,7 +251,7 @@ enumerator_list
 
 enumerator
         : IDENTIFIER -> new n.ASTNode('Enumerator', [$1])
-        | IDENTIFIER '=' constant_expression -> new n.ASTNode('Enumerator', [$1, $3])
+        | IDENTIFIER '=' conditional_expression -> new n.ASTNode('Enumerator', [$1, $3])
         ;
 
 type_qualifier
@@ -269,13 +261,13 @@ type_qualifier
 
 declarator
         : pointer direct_declarator -> new n.ASTNode('Declarator', [$1, $2])
-        | direct_declarator -> new n.ASTNode('Declarator', [$1])
+        | direct_declarator
         ;
 
 direct_declarator
         : IDENTIFIER -> new n.ASTNode('DirectDeclarator', [$1])
         | '(' declarator ')' -> new n.ASTNode('DirectDeclarator', [$2])
-        | direct_declarator '[' constant_expression ']' -> new n.ASTNode('DirectDeclarator', [$1, $3])
+        | direct_declarator '[' conditional_expression ']' -> new n.ASTNode('DirectDeclarator', [$1, $3])
         | direct_declarator '[' ']' -> new n.ASTNode('DirectDeclarator', [$1])
         | direct_declarator '(' parameter_type_list ')' -> new n.ASTNode('DirectDeclarator', [$1, $3])
         | direct_declarator '(' identifier_list ')' -> new n.ASTNode('DirectDeclarator', [$1, $3])
@@ -317,7 +309,7 @@ identifier_list
         ;
 
 type_name
-        : specifier_qualifier_list -> new n.ASTNode('TypeName', [$1])
+        : specifier_qualifier_list
         | specifier_qualifier_list abstract_declarator -> new n.ASTNode('TypeName', [$1, $2])
         ;
 
@@ -330,9 +322,9 @@ abstract_declarator
 direct_abstract_declarator
         : '(' abstract_declarator ')' -> new n.ASTNode('DirectAbstractDeclarator', [$2])
         | '[' ']' -> new n.ASTNode('DirectAbstractDeclarator', [])
-        | '[' constant_expression ']' -> new n.ASTNode('DirectAbstractDeclarator', [$2])
+        | '[' conditional_expression ']' -> new n.ASTNode('DirectAbstractDeclarator', [$2])
         | direct_abstract_declarator '[' ']' -> new n.ASTNode('DirectAbstractDeclarator', [$1])
-        | direct_abstract_declarator '[' constant_expression ']'
+        | direct_abstract_declarator '[' conditional_expression ']'
           { $$ = new n.ASTNode('DirectAbstractDeclarator', [$1, $3]); }
         | '(' ')' -> new n.ASTNode('DirectAbstractDeclarator', [])
         | '(' parameter_type_list ')' -> new n.ASTNode('DirectAbstractDeclarator', [$2])
@@ -366,7 +358,7 @@ statement
 
 labeled_statement
         : IDENTIFIER ':' statement -> new n.ASTNode('LabeledStatement', [$1, $3])
-        | CASE constant_expression ':' statement
+        | CASE conditional_expression ':' statement
           { $$ = new n.ASTNode('LabeledStatement', [$1, $2, $3]); }
         | DEFAULT ':' statement -> new n.ASTNode('LabeledStatement', [$1, $3])
         ;
