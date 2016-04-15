@@ -21,6 +21,7 @@ Similar to UniqueName, but for goto statements.
 ## StructMemberName
 Must be unique within a struct.
 
+- type: `TypeRef`
 - enclosingStruct: `StructDeclaration`
 
 # NameRef
@@ -59,33 +60,33 @@ All of these have an enclosingScope: `Scope`, which may be global.
 ## TypeDeclaration
 Also inherits from `Statement`!
 
-- Typedef
-    - fromType: `TypeRef`
-    - toType: `UniqueName`
+### Typedef
+- fromType: `TypeRef`
+- toType: `UniqueName`
 
 ### NewTypeDeclaration
+- ?name: `UniqueName`
+
 - StructDeclaration
-    - ?name: `UniqueName`
-    - ?members: list< {memberName: `StructMemberName`, memberType: `TypeRef`} >
+    - members: list< {memberName: `StructMemberName`, memberType: `TypeRef`} >
 - EnumDeclaration
-    - ?name: `UniqueName`
     - members: list< {name: `UniqueName`, ?num: `int`} >
 
-## ValueDeclaration
-All of these have a field isDefinition, which determines whether it is a declaration or definition. This can be viewed as a `bool` or an `enum`. A static pass (before type-checking) over the AST will determine whether there is more than one definition. If isDefinition is set to "definition" (or `true`), then a "value" field is allowed. This may be performed during creation of the AST during parsing, or as a separate pass over the AST before type-checking.
+## TopLevelValueDeclaration
+- check if value is non-null to see if there's a definition attached; if so, make sure only one exists
+- also make sure all the declarations agree with each other
 
 - TopLevelVariable
     - type: `TypeRef`
     - name: `UniqueName`
     - specifiers: list<`SomeString`>
-    - isDefinition: `bool` (or enum)
     - ?value: `Expression`
 - TopLevelFunction
     - returnType: `TypeRef`
     - argTypes: list<`TypeRef`>
-    - isDefinition: `bool` (or enum)
-    - ?value: list<`LocalVariable`>, definition: `OpenScope`
     - specifiers: list<`SomeString`>
+    - ?value: `FunctionDefinition`
+        - check to make sure local variable types match argTypes
 
 ## GotoDeclaration
 
@@ -101,7 +102,10 @@ All of these things have an enclosing scope, which may be anything subclassing `
 ## SimpleStatement
 ### Expression
 #### RealExpression
-All expressions have types, which are computed in an AST pass.
+All RealExpressions have types, which are computed in an AST pass.
+
+- outputType: `TypeRef`
+    - computed in AST pass, NOT at construction
 
 - FunctionCall
     - functionName: `ValueRef`
@@ -110,14 +114,17 @@ All expressions have types, which are computed in an AST pass.
     - options:
         - StringLiteral {content: `SomeString`}
         - NumericLiteral {content: `NumericConstant`}
-        - ReferenceLiteral
-            - `ValueRef`
-                - function/variable reference (not function call!!)
+- VariableReference
+    - ref: `ValueRef`
 - BinaryOperator
     - left: `RealExpression`
     - right: `RealExpression`
-    - split into specializations of:
-        - `+`|`-`|`*`|`/`|`=`|`+=`|`-=`|`*=`|`/=`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`|`%`|`>`|`<`|`<=`|`>=`|`&=`|`|=`|`^=`|`<<`|`>>`|`<<=`|`>>=`|`[]`
+    - `+`|`-`|`*`|`/`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`|`%`|`>`|`<`|`<=`|`>=`|`<<`|`>>`
+- LValueBinaryOperator
+    - left: `RealExpression`
+        - convertible into lvalue!
+    - right: `RealExpression`
+    - `=`|`+=`|`-=`|`*=`|`/=`|`&=`|`|=`|`^=`|`<<=`|`>>=`|`[]`
 - MemberAccessOperator
     - expr: `RealExpression`
     - memberName: `StructMemberNameRef`
@@ -138,17 +145,15 @@ All expressions have types, which are computed in an AST pass.
     - expr: `RealExpression`
 
 #### SometimesExpression
-Things that are expressions, but only in the beginning of parts of if/while/for blocks. For compound variable assignments (`int a = 3, b = 2`), let's just make them into a list of variable assignments. I'm pretty sure that's allowed.
+Things that are expressions, but only in the beginning of parts of if/while/for/switch blocks. For compound variable assignments (`int a = 3, b = 2`), let's just make them into a list of variable assignments. I'm pretty sure that's allowed.
 
 - LocalVariable
     - type: `TypeRef`
     - name: `UniqueName`
     - ?value: `RealExpression`
         - not necessary; memory always allocated either way (modulo optimizations)
-    - specifiers: list<`SomeString`>
     - used for function arguments
     - this is also an expression, and also a statement!
-
 
 ### ControlStatement
 - ReturnStatement
@@ -160,6 +165,15 @@ Things that are expressions, but only in the beginning of parts of if/while/for 
 - EmptyStatement
 
 ## Scope
+all end up creating a new scope
+
+### SwitchBlock
+- define type `SwitchCase` to be Either<`NumericLiteral`, `Name`, `Expression`>, where all recursive operands of `Expression` are `NumericLiterals`, and all `Name`s refer to enums or other constant expressions
+    - during typechecking this MUST resolve to a constant expression!
+- conditionClause: `Expression`
+- body: list<pair<`SwitchCase`, list<`Statement`>>>
+
+### SingleScope
 all have (body: list<`Statement`>)
 - ForLoop
     - setupClause: `Expression`
@@ -173,3 +187,4 @@ all have (body: list<`Statement`>)
     - conditionClause: `Expression`
 - ElseBlock
 - OpenScope `{}`
+    - has "global" singleton

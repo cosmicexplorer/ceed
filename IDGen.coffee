@@ -1,5 +1,5 @@
 i = 0
 
-getID -> i++
+getID = -> i++
 
 module.exports = {getID}
