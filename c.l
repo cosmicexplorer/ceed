@@ -45,17 +45,17 @@ E			[Ee][+-]?{D}+
 
 {L}({L}|{D})*		return 'IDENTIFIER';
 
-0[xX]{H}+((u|U|l|L)*)?	return 'CONSTANT';
-0{D}+((u|U|l|L)*)?	return 'CONSTANT';
-{D}+((u|U|l|L)*)?	return 'CONSTANT';
+0[xX]{H}+((u|U|l|L)*)?	return 'INT_CONSTANT';
+0{D}+((u|U|l|L)*)?	return 'INT_CONSTANT';
+{D}+((u|U|l|L)*)?	return 'INT_CONSTANT';
 
-{D}+{E}(f|F|l|L)?	return 'CONSTANT';
-{D}*"."{D}+{E}?(f|F|l|L)?	return 'CONSTANT';
-{D}+"."{D}*{E}?(f|F|l|L)?	return 'CONSTANT';
+{D}+{E}(f|F|l|L)?	return 'FLOAT_CONSTANT';
+{D}*"."{D}+{E}?(f|F|l|L)?	return 'FLOAT_CONSTANT';
+{D}+"."{D}*{E}?(f|F|l|L)?	return 'FLOAT_CONSTANT';
 
 "L"?"'"			this.begin('singstring');
 <singstring>"'"		this.popState();
-<singstring>(\\\'|[^'])+	return 'CONSTANT';
+<singstring>(\\\'|[^'])+	return 'CHAR_CONSTANT';
 
 "L"?'"'			this.begin('string');
 <string>'"'             this.popState();

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+char * str = "hey\n";
+
 void f()
 {
   int a;
@@ -21,5 +23,6 @@ int main()
   int c = 1;
   c |= 512;
   printf("%d\n", c);
+  printf("%s\n", str);
   return 0;
 }

@@ -58,10 +58,10 @@ class EnumDeclaration extends TypeDeclaration
 
 class TopLevelValueDeclaration extends Declaration
 
-class TopLevelVariable extends TopLevelValue
+class TopLevelVariable extends TopLevelValueDeclaration
   constructor: (@type, @name, @specifiers, @value = null) -> super
 
-class TopLevelFunction extends TopLevelValue
+class TopLevelFunction extends TopLevelValueDeclaration
   constructor: (@returnType, @argTypes, @specifiers, @value = null) -> super
 
 class GotoDeclaration extends Declaration

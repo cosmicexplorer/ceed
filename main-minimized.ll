@@ -1,10 +1,10 @@
-target triple = "x86_64-unknown-linux-gnu"
-
-@.str = constant [7 x i8] c"hello\0A\00"
+@.str = constant [9 x i8] c"hellooo\0A\00"
+@str = global i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str, i32 0, i32 0), align 8
 
 define i32 @main() {
-  %1 = call i32 (i8*) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0))
+  %1 = load i8*, i8** @str, align 8
+  %2 = call i32 (i8*, ...) @printf(i8* %1)
   ret i32 0
 }
 
-declare i32 @printf(i8*)
+declare i32 @printf(i8*, ...)
