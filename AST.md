@@ -171,7 +171,7 @@ all end up creating a new scope
 - define type `SwitchCase` to be Either<`NumericLiteral`, `Name`, `Expression`>, where all recursive operands of `Expression` are `NumericLiterals`, and all `Name`s refer to enums or other constant expressions
     - during typechecking this MUST resolve to a constant expression!
 - conditionClause: `Expression`
-- body: list<pair<`SwitchCase`, list<`Statement`>>>
+- cases: list<pair<`SwitchCase`, list<`Statement`>>>
 
 ### SingleScope
 all have (body: list<`Statement`>)
@@ -187,4 +187,3 @@ all have (body: list<`Statement`>)
     - conditionClause: `Expression`
 - ElseBlock
 - OpenScope `{}`
-    - has "global" singleton

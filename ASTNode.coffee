@@ -220,7 +220,7 @@ class SwitchCase extends ASTNode
   constructor: (@case, @body) -> super
 
 class SwitchBlock extends Scope
-  constructor: (@conditionClause, @body) -> super
+  constructor: (@conditionClause, @cases) -> super
 
 class SingleScope extends Scope
   constructor: (@body) -> super
@@ -246,16 +246,99 @@ module.exports = {
   ASTNode
   Name
   UniqueName
+  StructMember
   NameRef
+  ValueRef
+  LabelRef
+  StructMemberNameRef
+  FunctionDefinition
   TypeRef
+  NamedTypeRef
   AnonymousTypeRef
   Declaration
   TypeDeclaration
   Typedef
+  NewTypeDeclaration
   StructDeclaration
   EnumDeclaration
-  Value
-  TopLevelValue
+  TopLevelValueDeclaration
   TopLevelVariable
   TopLevelFunction
+  GotoDeclaration
+  Statement
+  SimpleStatement
+  Expression
+  RealExpression
+  FunctionCall
+  Literal
+  StringLiteral
+  NumericLiteral
+  VariableReference
+  BinaryOperator
+  Adds
+  Subtracts
+  Multiplies
+  Divides
+  Comma
+  Equals
+  NotEquals
+  BooleanAnds
+  BooleanOrs
+  BinaryAnds
+  BinaryOrs
+  BinaryXors
+  BinaryNots
+  Mods
+  LessThanCompares
+  GreaterThanCompares
+  LessThanEqualCompares
+  GreaterThanEqualCompares
+  LeftShifts
+  RightShifts
+  LValueBinaryOperator
+  Assigns
+  AddsAssigns
+  SubstractsAssigns
+  MultipliesAssigns
+  DividesAssigns
+  AndsAssigns
+  OrsAssigns
+  XorsAssigns
+  LeftShiftsAssigns
+  RightShiftsAssigns
+  Subscript
+  MemberAccessOperator
+  DotOperator
+  ArrowOperator
+  UnaryOperator
+  DereferenceOperator
+  ReferenceOperator
+  PreIncrementOperator
+  PostIncrementOperator
+  PreDecrementOperator
+  PostDecrementOperator
+  PlusUnaryOperator
+  MinusUnaryOperator
+  NotOperator
+  TernaryOperator
+  ParenthesesOperator
+  ExplicitCast
+  SometimesExpression
+  LocalVariable
+  ControlStatement
+  ReturnStatement
+  BreakStatement
+  ContinueStatement
+  GotoStatement
+  EmptyStatement
+  Scope
+  SwitchCase
+  SwitchBlock
+  SingleScope
+  ForLoop
+  WhileLoop
+  DoWhileLoop
+  IfBlock
+  ElseBlock
+  OpenScope
 }
