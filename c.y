@@ -16,164 +16,126 @@ var n = require('./ASTNode');
 /* in general, don't have tokens as "children"; instead, make them attributes,
  * or make them a new type of subclass of the parse tree node */
 primary_expression
-        : IDENTIFIER -> new n.ASTNode('PrimaryExpression', [$1])
-        | INT_CONSTANT
-          { console.log($1);
-            $$ = new n.NumericLiteral(parseInt($1)); }
-        | FLOAT_CONSTANT -> new n.ASTNode('PrimaryExpression', [$1])
-        | CHAR_CONSTANT -> new n.ASTNode('PrimaryExpression', [$1])
-        | STRING_LITERAL -> new n.ASTNode('PrimaryExpression', [$1])
-        | '(' expression ')' -> new n.ASTNode('PrimaryExpression', [$2])
+        : IDENTIFIER -> new n.NameRef($1)
+        | INT_CONSTANT -> new n.IntegerLiteral(parseInt($1))
+        | FLOAT_CONSTANT -> new n.FloatingPointLiteral(parseFloat($1))
+        | CHAR_CONSTANT -> new n.CharLiteral($1.charCodeAt(0))
+        | STRING_LITERAL -> new n.StringLiteral($1)
+        | '(' expression ')' -> new n.ParenthesesOperator($2)
         ;
 
 postfix_expression
-        : primary_expression -> new n.ASTNode('PostfixExpression', [$1])
-        | postfix_expression '[' expression ']'
-          { $$ = new n.ASTNode('PostfixExpression', [$1, $3]); }
-        | postfix_expression '(' ')'
-          { $$ = new n.ASTNode('PostfixExpression', [$1]); }
-        | postfix_expression '(' argument_expression_list ')'
-          { $$ = new n.ASTNode('PostfixExpression', [$1, $3]); }
-        | postfix_expression '.' IDENTIFIER
-          { $$ = new n.ASTNode('PostfixExpression', [$1, $3]); }
-        | postfix_expression PTR_OP IDENTIFIER
-          { $$ = new n.ASTNode('PostfixExpression', [$1, $2, $3]); }
-        | postfix_expression INC_OP
-          { $$ = new n.ASTNode('PostfixExpression', [$1, $2]); }
-        | postfix_expression DEC_OP
-          { $$ = new n.ASTNode('PostfixExpression', [$1, $2]); }
+        : primary_expression
+        | postfix_expression '[' expression ']' -> new n.Subscript($1, $3)
+        | postfix_expression '(' ')' -> new n.FunctionCall($1)
+        | postfix_expression '(' argument_expression_list ')' -> new n.FunctionCall($1, $3)
+        | postfix_expression '.' IDENTIFIER -> new n.DotOperator($1, $3)
+        | postfix_expression PTR_OP IDENTIFIER -> new n.ArrowOperator($1, $3)
+        | postfix_expression INC_OP -> new n.PostIncrementOperator($1)
+        | postfix_expression DEC_OP -> new n.PostDecrementOperator($1)
         ;
 
 argument_expression_list
-        : assignment_expression -> new n.ASTNode('ArgumentExpressionList', [$1])
-        | argument_expression_list ',' assignment_expression
-          { $$ = new n.ASTNode('ArgumentExpressionList', [$1, $3]); }
+        : assignment_expression
+        | argument_expression_list ',' assignment_expression -> $1.concat($3)
         ;
 
 unary_expression
-        : postfix_expression -> new n.ASTNode('UnaryExpression', [$1])
-        | INC_OP unary_expression -> new n.ASTNode('UnaryExpression', [$1, $2])
-        | DEC_OP unary_expression -> new n.ASTNode('UnaryExpression', [$1, $2])
-        | unary_operator cast_expression -> new n.ASTNode('UnaryExpression', [$1, $2])
-        | SIZEOF unary_expression -> new n.ASTNode('UnaryExpression', [$1, $2])
-        | SIZEOF '(' type_name ')' -> new n.ASTNode('UnaryExpression', [$1, $3])
-        ;
-
-unary_operator
-        : '&' -> new n.ASTNode('UnaryOperator', [$1])
-        | '*' -> new n.ASTNode('UnaryOperator', [$1])
-        | '+' -> new n.ASTNode('UnaryOperator', [$1])
-        | '-' -> new n.ASTNode('UnaryOperator', [$1])
-        | '~' -> new n.ASTNode('UnaryOperator', [$1])
-        | '!' -> new n.ASTNode('UnaryOperator', [$1])
+        : postfix_expression
+        | INC_OP unary_expression -> new n.PreIncrementOperator($2)
+        | DEC_OP unary_expression -> new n.PreDecrementOperator($2)
+        | '&' cast_expression -> new n.ReferenceOperator($2)
+        | '*' cast_expression -> new n.DereferenceOperator($2)
+        | '+' cast_expression -> new n.PlusUnaryOperator($2)
+        | '-' cast_expression -> new n.MinusUnaryOperator($2)
+        | '~' cast_expression -> new n.BinaryNotOperator($2)
+        | '!' cast_expression -> new n.BooleanNotOperator($2)
+        | SIZEOF unary_expression -> new n.SizeofOperator($2)
+        | SIZEOF '(' type_name ')' -> new n.SizeofOperator($3)
         ;
 
 cast_expression
-        : unary_expression -> new n.ASTNode('CastExpression', [$1])
-        | '(' type_name ')' cast_expression -> new n.ASTNode('UnaryOperator', [$2, $4])
+        : unary_expression
+        | '(' type_name ')' cast_expression -> new n.ExplicitCast($2, $4)
         ;
 
 multiplicative_expression
-        : cast_expression -> new n.ASTNode('MultiplicativeExpression', [$1])
-        | multiplicative_expression '*' cast_expression
-          { $$ = new n.ASTNode('MultiplicativeExpression', [$1, $3]); }
-        | multiplicative_expression '/' cast_expression
-          { $$ = new n.ASTNode('MultiplicativeExpression', [$1, $3]); }
-        | multiplicative_expression '%' cast_expression
-          { $$ = new n.ASTNode('MultiplicativeExpression', [$1, $3]); }
+        : cast_expression
+        | multiplicative_expression '*' cast_expression -> new n.Multiplies($1, $3)
+        | multiplicative_expression '/' cast_expression -> new n.Divides($1, $3)
+        | multiplicative_expression '%' cast_expression -> new n.Mods($1, $3)
         ;
 
 additive_expression
         : multiplicative_expression
-          { $$ = new n.ASTNode('AdditiveExpression', [$1]); }
-        | additive_expression '+' multiplicative_expression
-          { $$ = new n.ASTNode('AdditiveExpression', [$1, $3]); }
-        | additive_expression '-' multiplicative_expression
-          { $$ = new n.ASTNode('AdditiveExpression', [$1, $3]); }
+        | additive_expression '+' multiplicative_expression -> new n.Adds($1, $3)
+        | additive_expression '-' multiplicative_expression -> new n.Subtracts($1, $3)
         ;
 
 shift_expression
-        : additive_expression -> new n.ASTNode('ShiftExpression', [$1])
-        | shift_expression LEFT_OP additive_expression
-          { $$ = new n.ASTNode('ShiftExpression', [$1, $2, $3]); }
-        | shift_expression RIGHT_OP additive_expression
-          { $$ = new n.ASTNode('ShiftExpression', [$1, $2, $3]); }
+        : additive_expression
+        | shift_expression LEFT_OP additive_expression -> new n.LeftShifts($1, $3)
+        | shift_expression RIGHT_OP additive_expression -> new n.RightShifts($1, $3)
         ;
 
 relational_expression
-        : shift_expression -> new n.ASTNode('RelationalExpression', [$1])
-        | relational_expression '<' shift_expression
-          { $$ = new n.ASTNode('RelationalExpression', [$1, $3]); }
-        | relational_expression '>' shift_expression
-          { $$ = new n.ASTNode('RelationalExpression', [$1, $3]); }
-        | relational_expression LE_OP shift_expression
-          { $$ = new n.ASTNode('RelationalExpression', [$1, $2, $3]); }
-        | relational_expression GE_OP shift_expression
-          { $$ = new n.ASTNode('RelationalExpression', [$1, $2, $3]); }
+        : shift_expression
+        | relational_expression '<' shift_expression -> new n.LessThanCompares($1, $3)
+        | relational_expression '>' shift_expression -> new n.GreaterThanCompares($1, $3)
+        | relational_expression LE_OP shift_expression -> new n.LessThanEqualCompares($1, $3)
+        | relational_expression GE_OP shift_expression -> new n.GreaterThanEqualCompares($1, $3)
         ;
 
 equality_expression
-        : relational_expression -> new n.ASTNode('EqualityExpression', [$1])
-        | equality_expression EQ_OP relational_expression
-          { $$ = new n.ASTNode('EqualityExpression', [$1, $2, $3]); }
-        | equality_expression NE_OP relational_expression
-          { $$ = new n.ASTNode('EqualityExpression', [$1, $2, $3]); }
+        : relational_expression
+        | equality_expression EQ_OP relational_expression -> new n.Equals($1, $3)
+        | equality_expression NE_OP relational_expression -> new n.NotEquals($1, $3)
         ;
 
 and_expression
-        : equality_expression -> new n.ASTNode('AndExpression', [$1])
-        | and_expression '&' equality_expression
-          { $$ = new n.ASTNode('AndExpression', [$1, $3]); }
+        : equality_expression
+        | and_expression '&' equality_expression -> new n.BinaryAnds($1, $3)
         ;
 
 exclusive_or_expression
-        : and_expression -> new n.ASTNode('ExclusiveOrExpression', [$1])
-        | exclusive_or_expression '^' and_expression
-          { $$ = new n.ASTNode('ExclusiveOrExpression', [$1, $3]); }
+        : and_expression
+        | exclusive_or_expression '^' and_expression -> new n.BinaryXors($1, $3)
         ;
 
 inclusive_or_expression
-        : exclusive_or_expression -> new n.ASTNode('InclusiveOrExpression', [$1])
-        | inclusive_or_expression '|' exclusive_or_expression
-          { $$ = new n.ASTNode('InclusiveOrExpression', [$1, $3]); }
+        : exclusive_or_expression
+        | inclusive_or_expression '|' exclusive_or_expression -> new n.BinaryOrs($1, $3)
         ;
 
 logical_and_expression
-        : inclusive_or_expression -> new n.ASTNode('LogicalAndExpression', [$1])
-        | logical_and_expression AND_OP inclusive_or_expression
-          { $$ = new n.ASTNode('LogicalAndExpression', [$1, $2, $3]); }
+        : inclusive_or_expression
+        | logical_and_expression AND_OP inclusive_or_expression -> new n.BooleanAnds($1, $3)
         ;
 
 logical_or_expression
-        : logical_and_expression -> new n.ASTNode('LogicalOrExpression', [$1])
-        | logical_or_expression OR_OP logical_and_expression
-          { $$ = new n.ASTNode('LogicalOrExpression', [$1, $2, $3]); }
+        : logical_and_expression
+        | logical_or_expression OR_OP logical_and_expression -> new n.BooleanOrs($1, $3)
         ;
 
 conditional_expression
-        : logical_or_expression -> new n.ASTNode('ConditionalExpression', [$1])
+        : logical_or_expression
         | logical_or_expression '?' expression ':' conditional_expression
-          { $$ = new n.ASTNode('ConditionalExpression', [$1, $3, $5]); }
+          { $$ = new n.TernaryOperator($1, $3, $5); }
         ;
 
 assignment_expression
-        : conditional_expression -> new n.ASTNode('AssignmentExpression', [$1])
-        | unary_expression assignment_operator assignment_expression
-          { $$ = new n.ASTNode('AssignmentExpression', [$1, $2, $3]); }
-        ;
-
-assignment_operator
-        : '=' -> new n.ASTNode('AssignmentOperator', [$1])
-        | MUL_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | DIV_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | MOD_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | ADD_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | SUB_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | LEFT_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | RIGHT_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | AND_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | XOR_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
-        | OR_ASSIGN -> new n.ASTNode('AssignmentOperator', [$1])
+        : conditional_expression
+        | unary_expression '=' assignment_expression -> new n.Assigns($1, $3)
+        | unary_expression MUL_ASSIGN assignment_expression -> new n.MultipliesAssigns($1, $3)
+        | unary_expression DIV_ASSIGN assignment_expression -> new n.DividesAssigns($1, $3)
+        | unary_expression MOD_ASSIGN assignment_expression -> new n.ModsAssigns($1, $3)
+        | unary_expression ADD_ASSIGN assignment_expression -> new n.AddsAssigns($1, $3)
+        | unary_expression SUB_ASSIGN assignment_expression -> new n.SubtractsAssigns($1, $3)
+        | unary_expression LEFT_ASSIGN assignment_expression -> new n.LeftShiftsAssigns($1, $3)
+        | unary_expression RIGHT_ASSIGN assignment_expression -> new n.RightShiftsAssigns($1, $3)
+        | unary_expression AND_ASSIGN assignment_expression -> new n.AndsAssigns($1, $3)
+        | unary_expression XOR_ASSIGN assignment_expression -> new n.XorsAssigns($1, $3)
+        | unary_expression OR_ASSIGN assignment_expression -> new n.OrsAssigns($1, $3)
         ;
 
 expression
@@ -472,6 +434,7 @@ translation_unit
         : external_declaration { return new n.ASTNode('TranslationUnit', [$1]); }
         | translation_unit external_declaration
           { return new n.ASTNode('TranslationUnit', [$1, $2]); }
+        | error { throw new Error('invalid parse: <' + $1 + '>'); }
         ;
 
 external_declaration

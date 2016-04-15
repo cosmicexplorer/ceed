@@ -108,7 +108,7 @@ All RealExpressions have types, which are computed in an AST pass.
     - computed in AST pass, NOT at construction
 
 - FunctionCall
-    - functionName: `ValueRef`
+    - function: `RealExpression`
     - arguments: list<`RealExpression`>
 - Literal
     - options:
@@ -119,12 +119,12 @@ All RealExpressions have types, which are computed in an AST pass.
 - BinaryOperator
     - left: `RealExpression`
     - right: `RealExpression`
-    - `+`|`-`|`*`|`/`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`~`|`%`|`>`|`<`|`<=`|`>=`|`<<`|`>>`
+    - `+`|`-`|`*`|`/`|`,`|`==`|`!=`|`&&`|`||`|`&`|`^`|`|`|`%`|`>`|`<`|`<=`|`>=`|`<<`|`>>`
 - LValueBinaryOperator
     - left: `RealExpression`
         - convertible into lvalue!
     - right: `RealExpression`
-    - `=`|`+=`|`-=`|`*=`|`/=`|`&=`|`|=`|`^=`|`<<=`|`>>=`|`[]`
+    - `=`|`+=`|`-=`|`*=`|`/=`|`&=`|`|=`|`^=`|`<<=`|`>>=`|`%=`|`[]`
 - MemberAccessOperator
     - expr: `RealExpression`
     - memberName: `StructMemberNameRef`
@@ -132,7 +132,7 @@ All RealExpressions have types, which are computed in an AST pass.
         - `.`|`->`
 - UnaryOperator
     - split into specializations of:
-        - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)|`+`|`-`|`!`
+        - `*`|`&`|`++`(pre)|`++`(post)|`--`(pre)|`--`(post)|`+`|`-`|`!`|`~`|`sizeof`
     - expr: `RealExpression`
 - TernaryOperator
     - test: `RealExpression`

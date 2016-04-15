@@ -78,14 +78,20 @@ class Expression extends SimpleStatement
 class RealExpression extends Expression
 
 class FunctionCall extends RealExpression
-  constructor: (@functionName, @arguments) -> super
+  constructor: (@function, @arguments = []) -> super
 
 class Literal extends RealExpression
 
 class StringLiteral extends Literal
   constructor: (@content) -> super
 
-class NumericLiteral extends Literal
+class CharLiteral extends Literal
+  constructor: (@content) -> super
+
+class IntegerLiteral extends Literal
+  constructor: (@content) -> super
+
+class FloatingPointLiteral extends Literal
   constructor: (@content) -> super
 
 class VariableReference extends RealExpression
@@ -140,7 +146,7 @@ class Assigns extends LValueBinaryOperator
 
 class AddsAssigns extends LValueBinaryOperator
 
-class SubstractsAssigns extends LValueBinaryOperator
+class SubtractsAssigns extends LValueBinaryOperator
 
 class MultipliesAssigns extends LValueBinaryOperator
 
@@ -155,6 +161,8 @@ class XorsAssigns extends LValueBinaryOperator
 class LeftShiftsAssigns extends LValueBinaryOperator
 
 class RightShiftsAssigns extends LValueBinaryOperator
+
+class ModsAssigns extends LValueBinaryOperator
 
 class Subscript extends LValueBinaryOperator
 
@@ -184,7 +192,11 @@ class PlusUnaryOperator extends UnaryOperator
 
 class MinusUnaryOperator extends UnaryOperator
 
-class NotOperator extends UnaryOperator
+class BooleanNotOperator extends UnaryOperator
+
+class BinaryNotOperator extends UnaryOperator
+
+class SizeofOperator extends UnaryOperator
 
 class TernaryOperator extends RealExpression
   constructor: (@test, @ifTrue, @ifFalse) -> super
@@ -272,7 +284,9 @@ module.exports = {
   FunctionCall
   Literal
   StringLiteral
-  NumericLiteral
+  CharLiteral
+  IntegerLiteral
+  FloatingPointLiteral
   VariableReference
   BinaryOperator
   Adds
@@ -298,7 +312,7 @@ module.exports = {
   LValueBinaryOperator
   Assigns
   AddsAssigns
-  SubstractsAssigns
+  SubtractsAssigns
   MultipliesAssigns
   DividesAssigns
   AndsAssigns
@@ -319,7 +333,9 @@ module.exports = {
   PostDecrementOperator
   PlusUnaryOperator
   MinusUnaryOperator
-  NotOperator
+  BooleanNotOperator
+  BinaryNotOperator
+  SizeofOperator
   TernaryOperator
   ParenthesesOperator
   ExplicitCast

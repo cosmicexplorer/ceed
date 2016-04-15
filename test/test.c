@@ -1,5 +1,6 @@
 int main()
 {
-  int a = 3;
-  char * b = "23";
+  int a    = 3;
+  int b    = (a);
+  char * c = "23";
 }
